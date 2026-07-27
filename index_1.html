@@ -43,13 +43,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .rec{text-align:right}
 .rec small{display:block;font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#C9AEB7}
 .rec b{font-size:14px;color:var(--vd);font-weight:800}
+.nome-wrap{margin-bottom:10px}
+.nome-wrap input{width:100%;border:1px solid var(--li);border-radius:12px;padding:12px 14px;font-size:14px;font-family:inherit;color:var(--ink);background:var(--creme)}
+.nome-wrap input:focus{outline:none;border-color:var(--coral);background:#fff}
+.nome-wrap input::placeholder{color:#C9AEB7}
 .bb{display:grid;grid-template-columns:1fr auto;gap:8px}
 .btn-r{border:0;border-radius:14px;padding:15px;background:linear-gradient(135deg,var(--vinho),var(--coral));color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}
 .btn-r:disabled{opacity:.4}
 .btn-l{border:0;border-radius:14px;padding:15px 18px;background:var(--cc);color:#A9707F;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
 #telaOrc{display:none;position:fixed;inset:0;z-index:100;background:#fff;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #telaOrc.aberta{display:block}
-.oa{position:sticky;top:0;z-index:10;display:grid;grid-template-columns:auto 1fr;gap:8px;background:#fff;padding:12px 14px;border-bottom:1px solid var(--li)}
+.oa{position:sticky;top:0;z-index:10;display:grid;grid-template-columns:auto 1fr auto;gap:8px;background:#fff;padding:12px 14px;border-bottom:1px solid var(--li)}
 .oa .voltar{border:0;border-radius:12px;padding:12px 16px;background:var(--cc);color:#A9707F;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
 .oa .imprimir{border:0;border-radius:12px;padding:12px;background:linear-gradient(135deg,var(--vinho),var(--coral));color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit}
 .orc{padding:28px 22px 60px;max-width:760px;margin:0 auto}
@@ -102,6 +106,7 @@ body{padding-bottom:40px}
 .cobrar b{font-size:32px}
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -131,6 +136,7 @@ body{padding-bottom:40px}
 </div>
 <div class="rec"><small>clínica recebe</small><b id="tr">R$ 0</b></div>
 </div>
+<div class="nome-wrap"><input type="text" id="nomePac" placeholder="Nome da paciente" autocomplete="off"></div>
 <div class="bb">
 <button class="btn-r" id="btnRel" onclick="verOrc()" type="button" disabled>Ver orçamento da paciente</button>
 <button class="btn-l" onclick="limpar()" type="button">Limpar</button>
@@ -141,7 +147,8 @@ body{padding-bottom:40px}
 <div id="telaOrc">
 <div class="oa">
 <button class="voltar" onclick="fecharOrc()" type="button">&lsaquo; Voltar</button>
-<button class="imprimir" onclick="window.print()" type="button">Imprimir / Salvar PDF</button>
+<button class="imprimir" onclick="baixarPDF()" type="button">Baixar PDF</button>
+<button class="voltar" onclick="window.print()" type="button">Imprimir</button>
 </div>
 <div class="orc" id="orcC"></div>
 </div>
@@ -172,7 +179,7 @@ document.getElementById("tr").textContent=mc(tR);
 document.getElementById("lbl").textContent=tp==="pix"?"Cobrar da paciente · PIX":"Cobrar da paciente · Cartão";
 document.getElementById("pcl").textContent=(tp==="cartao"&&tC>0)?"em até 10x no cartão":"";
 document.getElementById("btnRel").disabled=!tem}
-function limpar(){q={};up()}
+function limpar(){q={};document.getElementById("nomePac").value="";up()}
 function verOrc(){
 var its=[],tPix=0,tCard=0;
 for(var i=0;i<P.length;i++){var p=P[i],n=q[p.id]||0;if(!n)continue;
@@ -180,6 +187,8 @@ var r=p.preco*n,c=vc(r);
 tPix+=r;tCard+=c;
 its.push({nome:p.nome,via:p.via,n:n,uPix:p.preco,sPix:r,uCard:vc(p.preco),sCard:c})}
 var d=new Date().toLocaleDateString("pt-BR");
+var nome=(document.getElementById("nomePac").value||"").trim();
+ultNome=nome;ultData=d;
 var ln="";
 for(var j=0;j<its.length;j++){var it=its[j];
 ln+="<tr><td><b>"+it.nome+"</b><br><span style='font-size:10px;color:#A08691'>"+it.via+" · "+it.n+" "+(it.n>1?"sessões":"sessão")+"</span></td>"
@@ -187,19 +196,31 @@ ln+="<tr><td><b>"+it.nome+"</b><br><span style='font-size:10px;color:#A08691'>"+
 +"<td class='d'>"+m(it.sCard)+"</td></tr>"}
 document.getElementById("orcC").innerHTML=
 "<div class='cab'><img src='"+LOGO+"' alt='Clínica Ella'><div class='di'><b>Orçamento</b><span>Injetáveis · "+d+"</span><div class='by'>by RVCare</div></div></div>"
-+"<div class='meta'><div class='campo'><b>Paciente</b><span class='pac'></span></div><div class='campo'><b>Data</b>"+d+"</div><div class='campo'><b>Validade</b>15 dias</div></div>"
++"<div class='meta'><div class='campo'><b>Paciente</b>"+(nome?("<span style='font-weight:600'>"+nome+"</span>"):"<span class='pac'></span>")+"</div><div class='campo'><b>Data de emissão</b>"+d+"</div><div class='campo'><b>Validade</b>15 dias</div></div>"
 +"<h2>Aplicações prescritas</h2>"
 +"<table><thead><tr><th>Produto</th><th class='d'>À vista</th><th class='d'>No cartão</th></tr></thead><tbody>"+ln+"</tbody></table>"
 +"<div class='opcoes'>"
 +"<div class='op pix'><small>Opção 1 · À vista</small><b>"+m(tPix)+"</b><div class='det'>PIX ou Dinheiro</div></div>"
-+"<div class='op card'><small>Opção 2 · Parcelado</small><b>"+m(tCard)+"</b><div class='det'>em até 10x no cartão</div></div>"
++"<div class='op card'><small>Opção 2 · Parcelado</small><b>"+m(tCard)+"</b><div class='det'>Parcelado no cartão (com juros)</div></div>"
 +"</div>"
 +"<div class='obs'><b>Orientações:</b> as aplicações são realizadas na clínica por profissional habilitado, conforme prescrição médica. Este orçamento tem validade de 15 dias. Agende suas sessões na recepção ou pelo WhatsApp da clínica.</div>"
 +"<div class='ass'><div><span></span>Responsável - Clínica Ella</div><div><span></span>Paciente</div></div>"
-+"<div class='rod'>Clínica Ella · IBE - Instituto Brasileiro de Endometriose · Sistema RVCare</div>";
++"<div class='rod'>Clínica Ella · IBE - Instituto Brasileiro de Endometriose · Sistema RVCare · v4</div>";
 document.getElementById("telaOrc").classList.add("aberta");
 window.scrollTo(0,0)}
 function fecharOrc(){document.getElementById("telaOrc").classList.remove("aberta")}
+var ultNome="",ultData="";
+function baixarPDF(){
+if(typeof html2pdf==="undefined"){alert("Sem internet para gerar o PDF. Use o botão Imprimir e escolha Salvar como PDF.");return}
+var nomeArq="Orcamento_"+(ultNome?ultNome.replace(/[^A-Za-zÀ-ÿ0-9 ]/g,"").replace(/ +/g,"_"):"Paciente")+"_"+ultData.replace(/\//g,"-")+".pdf";
+var el=document.getElementById("orcC");
+html2pdf().set({
+margin:[10,10,10,10],
+filename:nomeArq,
+image:{type:"jpeg",quality:0.95},
+html2canvas:{scale:2,useCORS:true},
+jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}
+}).from(el).save()}
 </script>
 </body>
 </html>
