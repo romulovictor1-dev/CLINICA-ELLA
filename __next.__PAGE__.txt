@@ -1,0 +1,6 @@
+1:"$Sreact.fragment"
+2:I[17662,["/CLINICA-ELLA/_next/static/chunks/0typu5mmra_zv.js","/CLINICA-ELLA/_next/static/chunks/124eztdl49nbl.js"],"OrcamentosApp"]
+3:I[25326,["/CLINICA-ELLA/_next/static/chunks/0typu5mmra_zv.js"],"OutletBoundary"]
+4:"$Sreact.suspense"
+0:{"rsc":["$","$1","c",{"children":[["$","$L2",null,{}],[["$","script","script-0",{"src":"/CLINICA-ELLA/_next/static/chunks/124eztdl49nbl.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"0bbWLtDYJKxf-8Duwz-n-"}
+5:null
